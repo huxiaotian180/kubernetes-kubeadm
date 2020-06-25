@@ -198,6 +198,22 @@ $ yum install -y keepalived
 ```
 
 
+注意：脚本文件配置
+
+![](image/5.2.png)
+
+
+
+![](image/5.3.1.png)
+
+
+
+![](image/5.3.2.png)
+
+
+
+
+
 # 二. 搭建高可用集群
 
 ## 1. 部署keepalived-apiserver高可用（任选两个master节点）
