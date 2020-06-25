@@ -139,9 +139,9 @@ $ systemctl enable kubelet && systemctl start kubelet
 #### 5.1 下载配置文件
 我这准备了一个项目，专门为大家按照自己的环境生成配置的。它只是帮助大家尽量的减少了机械化的重复工作。它并不会帮你设置系统环境，不会给你安装软件。总之就是会减少你的部署工作量，但不会耽误你对整个系统的认识和把控。
 ```bash
-$ cd ~ && git clone https://gitee.com/pa/kubernetes-ha-kubeadm.git
+$ cd ~ && git clone https://github.com/huxiaotian180/kubernetes-kubeadm
 # 看看git内容
-$ ls -l kubernetes-ha-kubeadm
+$ ls -l kubernetes-kubeadm
 addons/
 configs/
 scripts/
@@ -169,7 +169,7 @@ global-configs.properties
 在每个节点上都生成一遍，把所有配置都生成好，后面会根据节点类型去使用相关的配置。
 ```bash
 # cd到之前下载的git代码目录
-$ cd kubernetes-ha-kubeadm
+$ cd kubernetes-kubeadm
 
 # 编辑属性配置（根据文件注释中的说明填写好每个key-value）
 $ vi global-config.properties
@@ -189,15 +189,28 @@ $ find target/ -type f
 
 ```
 
-
-# 二. 搭建高可用集群
+# 二、搭建高可用集群
 ## 1. 部署keepalived - apiserver高可用（任选两个master节点）
 #### 1.1 安装keepalived
+​```bash
+# 在两个主节点上安装keepalived（一主一备）
+$ yum install -y keepalived
+```
+
+
+# 二. 搭建高可用集群
+
+## 1. 部署keepalived-apiserver高可用（任选两个master节点）
+
+#### 1.1 安装keepalived
+
 ```bash
 # 在两个主节点上安装keepalived（一主一备）
 $ yum install -y keepalived
 ```
+
 #### 1.2 创建keepalived配置文件
+
 ```bash
 # 创建目录
 $ ssh <user>@<master-ip> "mkdir -p /etc/keepalived"
@@ -213,6 +226,7 @@ $ scp target/scripts/check-apiserver.sh <user>@<backup-ip>:/etc/keepalived/
 ```
 
 #### 1.3 启动keepalived
+
 ```bash
 # 分别在master和backup上启动服务
 $ systemctl enable keepalived && service keepalived start
@@ -228,6 +242,7 @@ $ ip a
 ```
 
 ## 2. 部署第一个主节点
+
 ```bash
 # 准备配置文件
 $ scp target/configs/kubeadm-config.yaml <user>@<node-ip>:~
@@ -246,7 +261,9 @@ $ kubectl get pods --all-namespaces
 ```
 
 ## 3. 部署网络插件 - calico
+
 我们使用calico官方的安装方式来部署。
+
 ```bash
 # 创建目录（在配置了kubectl的节点上执行）
 $ mkdir -p /etc/kubernetes/addons
@@ -261,7 +278,9 @@ $ kubectl apply -f /etc/kubernetes/addons/calico.yaml
 # 查看状态
 $ kubectl get pods -n kube-system
 ```
+
 ## 4. 加入其它master节点
+
 ```bash
 # 使用之前保存的join命令加入集群
 $ kubeadm join ...
@@ -277,6 +296,7 @@ $ kubectl get pods --all-namespaces
 ```
 
 ## 5. 加入worker节点
+
 ```bash
 # 使用之前保存的join命令加入集群
 $ kubeadm join ...
@@ -289,7 +309,9 @@ $ kubectl get nodes
 ```
 
 
+
 # 三、集群可用性测试
+
 ## 1. 创建nginx ds
 
 ```bash
@@ -405,7 +427,7 @@ $ netstat -ntlp|grep 30005
 关于自定义证书 
 默认dashboard的证书是自动生成的，肯定是非安全的证书，如果大家有域名和对应的安全证书可以自己替换掉。使用安全的域名方式访问dashboard。 
 在dashboard-all.yaml中增加dashboard启动参数，可以指定证书文件，其中证书文件是通过secret注进来的。
-  
+
 > \- –tls-cert-file  
 \- dashboard.cer  
 \- –tls-key-file  
