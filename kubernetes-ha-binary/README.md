@@ -181,7 +181,7 @@ $ vi ~/.bash_profile
 
 ```bash
 $ cd ~
-$ git clone https://gitee.com/pa/kubernetes-ha-binary.git
+$ git clone https://github.com/huxiaotian180/kubernetes-kubeadm/tree/master/kubernetes-ha-binary
 
 # 看看git内容
 $ ls -l kubernetes-ha-binary
